@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎁 GiftDrop</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Cabinet+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="gd-toast"></div>
+
+<!-- ═══════════════════════════════════
+     PANTALLA 0: SPLASH
+═══════════════════════════════════ -->
+<div id="screen-splash" class="screen active">
+  <div class="container text-center py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+        <div class="splash-logo mb-3">🎁</div>
+        <div class="splash-badge mb-3"><i class="bi bi-stars"></i> Intercambio de regalos</div>
+        <h1 class="splash-title mb-4">Gift<span class="accent">Drop</span></h1>
+        <p class="mb-5" style="color:var(--muted2);max-width:400px;margin-inline:auto;font-size:1.02rem;line-height:1.6">
+          Organiza tu intercambio de regalos de forma elegante, con sorteo inteligente y exclusiones personalizadas.
+        </p>
+        <!-- Bootstrap grid — feature cards -->
+        <div class="row g-3 mb-5 text-start">
+          <div class="col-12 col-sm-4">
+            <div class="splash-feature-card h-100">
+              <span class="feat-icon">🧑‍🤝‍🧑</span>
+              <div class="feat-title">Sin límite</div>
+              <div class="feat-desc">Registra todos los participantes que quieras, sin restricciones.</div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-4">
+            <div class="splash-feature-card h-100">
+              <span class="feat-icon">🎲</span>
+              <div class="feat-title">Sorteo justo</div>
+              <div class="feat-desc">Exclusiones respetadas al 100% en el sorteo automático.</div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-4">
+            <div class="splash-feature-card h-100">
+              <span class="feat-icon">💾</span>
+              <div class="feat-title">Persistente</div>
+              <div class="feat-desc">Todo guardado en localStorage, nunca pierdes tu progreso.</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-splash" onclick="goTo('screen-step1')">
+          <i class="bi bi-play-fill"></i> Comenzar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PASO 1: ORGANIZADOR
+═══════════════════════════════════ -->
+<div id="screen-step1" class="screen">
+  <div class="container wizard-wrap">
+    <div id="sb1"></div>
+    <div class="gd-panel">
+      <div class="gd-title">👤 ¿Quién organiza?</div>
+      <div class="gd-sub">Ingresa el nombre del organizador(a) e indica si participará en el sorteo.</div>
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6">
+          <label class="gd-label">Nombre del organizador(a) *</label>
+          <input id="org-name" class="gd-input" type="text" placeholder="Ej. Laura Martínez" maxlength="40"
+                 onkeydown="if(event.key==='Enter') document.getElementById('org-email').focus()"/>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="gd-label">Correo (opcional)</label>
+          <input id="org-email" class="gd-input" type="email" placeholder="correo@ejemplo.com"/>
+        </div>
+      </div>
+      <label class="gd-label mb-2">¿El organizador participa en el intercambio?</label>
+      <div class="row g-2 mb-4">
+        <div class="col-12 col-sm-6">
+          <div class="radio-card sel" id="rc-yes" onclick="setOrgParticipate('yes')">
+            <div class="rc-icon">🎉</div>
+            <div><div class="rc-label">Sí, participo</div><div class="rc-desc">Seré incluido en el sorteo</div></div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6">
+          <div class="radio-card" id="rc-no" onclick="setOrgParticipate('no')">
+            <div class="rc-icon">🧑‍💼</div>
+            <div><div class="rc-label">No, solo organizo</div><div class="rc-desc">No estaré en el sorteo</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end">
+        <button class="gd-btn gd-btn-primary" onclick="saveStep1()">Siguiente <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PASO 2: PARTICIPANTES
+═══════════════════════════════════ -->
+<div id="screen-step2" class="screen">
+  <div class="container wizard-wrap">
+    <div id="sb2"></div>
+    <div class="gd-panel">
+      <div class="gd-title">🧑‍🤝‍🧑 Participantes</div>
+      <div class="gd-sub">Agrega a todos los participantes. No hay límite.</div>
+      <div class="row g-2 align-items-end mb-3">
+        <div class="col-12 col-sm-8 col-md-9">
+          <label class="gd-label">Nombre</label>
+          <input id="p-input" class="gd-input" type="text" placeholder="Nombre completo" maxlength="35"
+                 onkeydown="if(event.key==='Enter') addParticipant()"/>
+        </div>
+        <div class="col-12 col-sm-4 col-md-3">
+          <button class="gd-btn gd-btn-primary gd-btn-full" onclick="addParticipant()">
+            <i class="bi bi-plus-lg"></i> Agregar
+          </button>
+        </div>
+      </div>
+      <div id="p-list" class="d-flex flex-column gap-2 mb-3">
+        <div id="p-empty" class="text-center py-3" style="color:var(--muted)">
+          <i class="bi bi-people d-block fs-3 mb-2"></i>Aún no hay participantes
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div id="p-count" class="mb-3" style="font-size:.83rem;color:var(--muted)">Mínimo 2 participantes.</div>
+      <div class="d-flex justify-content-between gap-2">
+        <button class="gd-btn gd-btn-ghost" onclick="goTo('screen-step1')"><i class="bi bi-arrow-left"></i> Atrás</button>
+        <button class="gd-btn gd-btn-primary" onclick="saveStep2()">Siguiente <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PASO 3: EXCLUSIONES
+═══════════════════════════════════ -->
+<div id="screen-step3" class="screen">
+  <div class="container wizard-wrap">
+    <div id="sb3"></div>
+    <div class="gd-panel">
+      <div class="gd-title">🚫 Exclusiones</div>
+      <div class="gd-sub">¿Hay personas que NO deben sortearse entre sí? (parejas, hermanos…)</div>
+      <label class="gd-label mb-2">¿Habrá exclusiones?</label>
+      <div class="row g-2 mb-4">
+        <div class="col-12 col-sm-6">
+          <div class="radio-card sel" id="exc-no-card" onclick="setExcMode('no')">
+            <div class="rc-icon">✅</div>
+            <div><div class="rc-label">No, todos pueden sortearse</div><div class="rc-desc">Sin restricciones</div></div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6">
+          <div class="radio-card" id="exc-yes-card" onclick="setExcMode('yes')">
+            <div class="rc-icon">🚫</div>
+            <div><div class="rc-label">Sí, hay exclusiones</div><div class="rc-desc">Indicar pares a excluir</div></div>
+          </div>
+        </div>
+      </div>
+      <div id="exc-builder" style="display:none">
+        <div class="row g-2 align-items-end mb-3">
+          <div class="col-12 col-sm-5">
+            <label class="gd-label">Persona A</label>
+            <select id="exc-a" class="ex-select"><option value="">— selecciona —</option></select>
+          </div>
+          <div class="col-12 col-sm-5">
+            <label class="gd-label">Persona B</label>
+            <select id="exc-b" class="ex-select"><option value="">— selecciona —</option></select>
+          </div>
+          <div class="col-12 col-sm-2">
+            <button class="gd-btn gd-btn-danger gd-btn-full" onclick="addExclusion()"><i class="bi bi-plus-lg"></i></button>
+          </div>
+        </div>
+        <div id="exc-list" class="d-flex flex-wrap gap-2 mb-2"></div>
+      </div>
+      <div class="d-flex justify-content-between gap-2 mt-3">
+        <button class="gd-btn gd-btn-ghost" onclick="goTo('screen-step2')"><i class="bi bi-arrow-left"></i> Atrás</button>
+        <button class="gd-btn gd-btn-primary" onclick="saveStep3()">Siguiente <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PASO 4: TIPO DE EVENTO
+═══════════════════════════════════ -->
+<div id="screen-step4" class="screen">
+  <div class="container wizard-wrap">
+    <div id="sb4"></div>
+    <div class="gd-panel">
+      <div class="gd-title">🎊 Tipo de evento</div>
+      <div class="gd-sub">Selecciona la celebración o escribe un nombre personalizado.</div>
+      <div class="event-grid mb-4" id="event-grid">
+        <div class="event-btn sel" data-type="Navidad"      onclick="selEvent(this)"><div class="e-icon">🎄</div><div class="e-name">Navidad</div></div>
+        <div class="event-btn"    data-type="Año Nuevo"     onclick="selEvent(this)"><div class="e-icon">🎆</div><div class="e-name">Año Nuevo</div></div>
+        <div class="event-btn"    data-type="Cumpleaños"    onclick="selEvent(this)"><div class="e-icon">🎂</div><div class="e-name">Cumpleaños</div></div>
+        <div class="event-btn"    data-type="San Valentín"  onclick="selEvent(this)"><div class="e-icon">💝</div><div class="e-name">San Valentín</div></div>
+        <div class="event-btn"    data-type="Halloween"     onclick="selEvent(this)"><div class="e-icon">🎃</div><div class="e-name">Halloween</div></div>
+        <div class="event-btn"    data-type="__custom__"    onclick="selEvent(this)"><div class="e-icon">✏️</div><div class="e-name">Otro…</div></div>
+      </div>
+      <div id="custom-event-wrap" style="display:none" class="mb-4">
+        <label class="gd-label">Nombre de la celebración</label>
+        <input id="custom-event" class="gd-input" type="text" placeholder="Ej. Reunión anual de la oficina" maxlength="50"/>
+      </div>
+      <div class="d-flex justify-content-between gap-2">
+        <button class="gd-btn gd-btn-ghost" onclick="goTo('screen-step3')"><i class="bi bi-arrow-left"></i> Atrás</button>
+        <button class="gd-btn gd-btn-primary" onclick="saveStep4()">Siguiente <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PASO 5: FECHA
+═══════════════════════════════════ -->
+<div id="screen-step5" class="screen">
+  <div class="container wizard-wrap">
+    <div id="sb5"></div>
+    <div class="gd-panel">
+      <div class="gd-title">📅 Fecha del evento</div>
+      <div class="gd-sub">Elige una fecha sugerida o selecciónala en el calendario.</div>
+      <label class="gd-label mb-2">Fechas sugeridas</label>
+      <div class="row g-2 mb-4" id="suggested-dates"></div>
+      <div class="divider"></div>
+      <label class="gd-label mt-2 mb-2">O elige en el calendario</label>
+      <input id="date-picker" class="gd-input" type="date" style="max-width:250px" onchange="onDatePicker()"/>
+      <div class="d-flex justify-content-between gap-2 mt-4">
+        <button class="gd-btn gd-btn-ghost" onclick="goTo('screen-step4')"><i class="bi bi-arrow-left"></i> Atrás</button>
+        <button class="gd-btn gd-btn-primary" onclick="saveStep5()">Siguiente <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PASO 6: PRESUPUESTO
+═══════════════════════════════════ -->
+<div id="screen-step6" class="screen">
+  <div class="container wizard-wrap">
+    <div id="sb6"></div>
+    <div class="gd-panel">
+      <div class="gd-title">💰 Presupuesto por regalo</div>
+      <div class="gd-sub">Elige un rango o ingresa una cantidad personalizada.</div>
+      <div class="row g-2 mb-4">
+        <div class="col-6 col-sm-4 col-md-3"><div class="budget-opt" data-val="100" onclick="selBudget(this)"><div class="b-amt">$100</div><div class="b-lbl">Económico</div></div></div>
+        <div class="col-6 col-sm-4 col-md-3"><div class="budget-opt sel" data-val="250" onclick="selBudget(this)"><div class="b-amt">$250</div><div class="b-lbl">Estándar</div></div></div>
+        <div class="col-6 col-sm-4 col-md-3"><div class="budget-opt" data-val="500" onclick="selBudget(this)"><div class="b-amt">$500</div><div class="b-lbl">Premium</div></div></div>
+        <div class="col-6 col-sm-4 col-md-3"><div class="budget-opt" data-val="1000" onclick="selBudget(this)"><div class="b-amt">$1,000</div><div class="b-lbl">Lujo</div></div></div>
+        <div class="col-6 col-sm-4 col-md-3"><div class="budget-opt" data-val="__custom__" onclick="selBudget(this)"><div class="b-amt" style="font-size:1rem">✏️ Otro</div><div class="b-lbl">Personalizado</div></div></div>
+      </div>
+      <div id="custom-budget-wrap" style="display:none" class="mb-4">
+        <label class="gd-label">Cantidad personalizada (MXN)</label>
+        <div class="d-flex gap-2" style="max-width:240px">
+          <span class="gd-input" style="width:36px;padding:10px 10px;flex-shrink:0;text-align:center">$</span>
+          <input id="custom-budget" class="gd-input" type="number" min="1" placeholder="350"/>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between gap-2">
+        <button class="gd-btn gd-btn-ghost" onclick="goTo('screen-step5')"><i class="bi bi-arrow-left"></i> Atrás</button>
+        <button class="gd-btn gd-btn-primary" onclick="saveStep6()">Siguiente <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PASO 7: RESUMEN (lee de localStorage)
+═══════════════════════════════════ -->
+<div id="screen-step7" class="screen">
+  <div class="container wizard-wrap">
+    <div id="sb7"></div>
+    <div class="gd-panel">
+      <div class="gd-title">📋 Datos del evento</div>
+      <div class="gd-sub">Información leída directamente de localStorage.</div>
+      <div id="summary-content"></div>
+      <div class="divider"></div>
+      <div class="d-flex justify-content-between gap-2 flex-wrap">
+        <button class="gd-btn gd-btn-ghost" onclick="goTo('screen-step6')"><i class="bi bi-arrow-left"></i> Atrás</button>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="gd-btn gd-btn-ghost" onclick="resetAll()"><i class="bi bi-arrow-counterclockwise"></i> Reiniciar</button>
+          <button class="gd-btn gd-btn-gold" onclick="goToSorteo()"><i class="bi bi-shuffle"></i> Ir al Sorteo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANTALLA SORTEO (Drag & Drop)
+═══════════════════════════════════ -->
+<div id="screen-sorteo" class="screen">
+  <div class="sorteo-hdr">
+    <div class="fs-1 mb-1">🎲</div>
+    <h2>¡Hora del Sorteo!</h2>
+    <p style="color:var(--muted);font-size:.88rem;max-width:520px;margin:6px auto 0">
+      Arrastra cada nombre a la zona de quien le dará el regalo,<br>o usa <strong>Sorteo Automático</strong>.
+    </p>
+  </div>
+
+  <div class="sorteo-content">
+    <div class="row g-3">
+
+      <!-- Pool + controles -->
+      <div class="col-12 col-lg-4">
+        <div class="gd-panel mb-3">
+          <div style="font-size:.85rem;font-weight:600;margin-bottom:10px">
+            <i class="bi bi-people"></i> Disponibles para recibir
+          </div>
+          <div class="drag-pool" id="drag-pool"
+               ondragover="poolDragOver(event)"
+               ondragleave="poolDragLeave(event)"
+               ondrop="poolDrop(event)">
+          </div>
+        </div>
+        <div class="d-flex flex-column gap-2">
+          <button class="gd-btn gd-btn-gold gd-btn-full" onclick="autoSort()">
+            <i class="bi bi-shuffle"></i> Sorteo Automático
+          </button>
+          <button class="gd-btn gd-btn-ghost gd-btn-full" onclick="clearSort()">
+            <i class="bi bi-x-circle"></i> Limpiar sorteo
+          </button>
+          <button class="gd-btn gd-btn-ghost gd-btn-full" onclick="goTo('screen-step7')">
+            <i class="bi bi-arrow-left"></i> Volver al resumen
+          </button>
+        </div>
+      </div>
+
+      <!-- Drop table -->
+      <div class="col-12 col-lg-8">
+        <div class="gd-panel mb-3">
+          <div style="font-size:.85rem;font-weight:600;margin-bottom:12px">
+            <i class="bi bi-gift"></i> Asignaciones — arrastra un nombre a cada zona
+          </div>
+          <div class="drop-tbl" id="drop-tbl"></div>
+        </div>
+
+        <!-- Resultados -->
+        <div id="results-panel" style="display:none">
+          <div class="gd-panel">
+            <div class="gd-title" style="font-size:1.2rem">🎉 Resultados del sorteo</div>
+            <div class="result-grid" id="result-grid"></div>
+            <div class="mt-3">
+              <button class="gd-btn gd-btn-green gd-btn-full" onclick="launchConfetti()">
+                <i class="bi bi-stars"></i> ¡Celebrar!
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Lógica de la aplicación -->
+  <script src="js/app.js"></script>
+</body>
+</html>
